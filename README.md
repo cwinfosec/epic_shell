@@ -3,6 +3,19 @@ Just a dumb project to better my coding skills. The goal was to create a webshel
 
 ## Usage
 
+```
+usage: beta.py [-h] [-c CONNECT] [-k KEY] [-g] [-pk PKEY]
+
+Web Shell
+
+optional arguments:
+  -h, --help                     Show this help message and exit.
+  -c CONNECT, --connect CONNECT  URL of web shell to connect to.
+  -k KEY, --key KEY              Auth key for the generated web shell.
+  -g, --generate                 Generate new key and webshell.
+  -pk PKEY, --payload-key PKEY   Payload key for webshell.
+```
+
 ![screenshot](/images/generate.PNG)
 
 Use the `-g` option to generate a web shell and an accompanying authentication key. There's probably a sneakier way to do it, but this currently requires a specific cookie header to interact with. 
