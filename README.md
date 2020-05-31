@@ -9,7 +9,7 @@ usage: beta.py [-h] [-c CONNECT] [-k KEY] [-g] [-pk PKEY]
 Web Shell
 
 optional arguments:
-  -h, --help                     Show this help message and exit.
+  -h, --help                     show this help message and exit
   -c CONNECT, --connect CONNECT  URL of web shell to connect to.
   -k KEY, --key KEY              Auth key for the generated web shell.
   -g, --generate                 Generate new key and webshell.
