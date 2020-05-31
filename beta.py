@@ -3,7 +3,7 @@ import argparse
 from termcolor import colored
 from base64 import b64encode
 import random
-import hashlib
+import bcrypt
 import requests
 import os
 import sys
@@ -11,7 +11,7 @@ import sys
 def parse_options():
 
 	formatter = lambda prog: argparse.HelpFormatter(prog,max_help_position=50)
-	parser = argparse.ArgumentParser(description='Web Shell - @cwinfosec', formatter_class=formatter)
+	parser = argparse.ArgumentParser(description='An Epic Web Shell - cwinfosec', formatter_class=formatter)
 	parser.add_argument("-c", "--connect", dest="connect", type=str, help="URL of web shell to connect to", required=False)
 	parser.add_argument("-k", "--key", dest="key", type=str, help="Auth key for the generated web shell", required=False)
 	parser.add_argument("-g", "--generate", dest="generate", help="Generate new key and webshell", action="store_true", required=False)
@@ -20,9 +20,8 @@ def parse_options():
 
 def generate_key(seed):
 
-	alg = hashlib.sha256()
-	alg.update(seed.encode("ascii"))
-	key = b64encode(alg.hexdigest().encode("ascii"))
+	salt = bcrypt.gensalt(rounds=12, prefix=b'2b')
+	key = b64encode(bcrypt.hashpw(str(seed).encode("ascii"), salt))
 	return key.decode()
 
 def generate_shell(key):
@@ -76,7 +75,7 @@ def main(args):
 
 	if args.generate:
 
-		chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!@#$%^&*()-=_+[]{};':,./<>?"
+		chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!@#$%^&*()-=_+[]{};":,./<>?'
 		seed = ''.join(random.choice(chars) for i in range(50))
 		print(colored('[+] ', 'blue') + 'Seed: ' + seed)
 		key = generate_key(seed)
