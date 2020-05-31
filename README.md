@@ -16,6 +16,8 @@ optional arguments:
   -pk PKEY, --payload-key PKEY   Payload key for webshell.
 ```
 
+### Examples
+
 ![screenshot](/images/generate.PNG)
 
 Use the `-g` option to generate a web shell and an accompanying authentication key. There's probably a sneakier way to do it, but this currently requires a specific cookie header to interact with. 
