@@ -12,3 +12,7 @@ Use the `-g` option to generate a web shell and an accompanying authentication k
 Alternatively, if you have the generated shell loaded onto a server, you can interact with it by specifying the `--connect <URL>`, `-k KEY`, and `-pk PAYLOAD_KEY` arguments. If you have trouble connecting, try wrapping the keys in double-quotes on your terminal. This shell supports terminal clearing via the "clear" command. There may be some risks with using `os.system` to do this, but w/e. Baby project, don't care at the moment. 
 
 Payload traffic is base64 & XOR encoded. The session HMAC and XOR schemes are polymorphic, and the values will change everytime you generate a shell. I will try to make this beefier as I get better with PHP. Enjoy!
+
+![screenshot](/images/error.PNG)
+
+Anyone trying to access the shell without the accompanying keys should see this page (might need some work to make it more believable).
