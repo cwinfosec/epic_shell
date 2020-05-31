@@ -9,6 +9,6 @@ Use the `-g` option to generate a web shell and an accompanying authentication k
 
 ![screenshot](/images/shell.PNG)
 
-Alternatively, if you have a shell loaded onto a server, you can interact with it by specifying the `--connect <URL>` and `-k KEY` arguments. This shell supports terminal clearing via the "clear" command. There may be some risks with using `os.system` to do this, but w/e. Baby project, don't care at the moment. 
+Alternatively, if you have the generated shell loaded onto a server, you can interact with it by specifying the `--connect <URL>` and `-k KEY` arguments. This shell supports terminal clearing via the "clear" command. There may be some risks with using `os.system` to do this, but w/e. Baby project, don't care at the moment. 
 
 Payload traffic is base64 encoded. I will try to make this beefier as I get better with PHP. Enjoy!
