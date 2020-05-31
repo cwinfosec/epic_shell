@@ -11,7 +11,7 @@ import sys
 def parse_options():
 
 	formatter = lambda prog: argparse.HelpFormatter(prog,max_help_position=50)
-	parser = argparse.ArgumentParser(description='Web Shell', formatter_class=formatter)
+	parser = argparse.ArgumentParser(description='Web Shell - @cwinfosec', formatter_class=formatter)
 	parser.add_argument("-c", "--connect", dest="connect", type=str, help="URL of web shell to connect to", required=False)
 	parser.add_argument("-k", "--key", dest="key", type=str, help="Auth key for the generated web shell", required=False)
 	parser.add_argument("-g", "--generate", dest="generate", help="Generate new key and webshell", action="store_true", required=False)
