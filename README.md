@@ -10,9 +10,9 @@ Web Shell
 
 optional arguments:
   -h, --help                     show this help message and exit
+  -g, --generate                 Generate new key and webshell.
   -c CONNECT, --connect CONNECT  URL of web shell to connect to.
   -k KEY, --key KEY              Auth key for the generated web shell.
-  -g, --generate                 Generate new key and webshell.
   -pk PKEY, --payload-key PKEY   Payload key for webshell.
 ```
 
