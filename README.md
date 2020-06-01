@@ -1,5 +1,5 @@
 # Epic Shell
-Just a dumb project to better my coding skills. The goal was to create a webshell that isn't a pain to work with, and one that won't get immediately detected by IPS solutions (work in progress).
+This is just a dumb project to improve my coding skills. The goal was to create a webshell that isn't a pain to work with, and one that won't get immediately detected by IPS solutions (work in progress).
 
 ## Usage
 
