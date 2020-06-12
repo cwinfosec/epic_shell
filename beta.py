@@ -9,6 +9,9 @@ import sys
 import requests
 import bcrypt
 from base64 import b64encode
+
+import requests
+import bcrypt
 from termcolor import colored
 
 
@@ -42,9 +45,7 @@ def generate_shell(key, payload_key):
     ]
 
     with open("./shell.php", "w+") as file:
-        for line in shell:
-            file.write(line + "\n")
-        file.close()
+        file.wite("\n".join(shell))
     print(colored("[+] ", "green") + "Created new shell.php file.")
 
 
