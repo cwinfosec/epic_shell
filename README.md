@@ -33,3 +33,7 @@ Payload traffic is base64 & XOR encoded. The session HMAC and XOR schemes are po
 ![screenshot](/images/error.PNG)
 
 Anyone trying to access the shell without the accompanying keys should see this page (might need some work to make it more believable).
+
+### To-do
+
+Add support for directories that require cookies (e.g. wordpress sites)
